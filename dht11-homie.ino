@@ -23,8 +23,13 @@ void loopHandler() {
   if (millis() - lastSent >= intervalSetting.get() * 1000UL || lastSent == 0) {
     // Read temperature as Celsius (the default)
     float temperature = dht.readTemperature();    
-    float humidity = dht.readHumidity();   
-
+    float humidity = dht.readHumidity();
+	
+    // Check if any reads failed and exit early.
+    if (isnan(humidity) || isnan(temperature)) {
+      Homie.getLogger().println("Failed to read from DHT sensor!");
+      return;
+    }
     Homie.getLogger() << "Temperature: " << temperature << " °C" << endl;
     temperatureNode.setProperty("degrees").send(String(temperature));
     Homie.getLogger() << "Humidity: " << humidity << " %" << endl;
