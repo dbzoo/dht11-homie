@@ -1,4 +1,3 @@
-#include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <Homie.h>  // homie-esp8266-2.0.0
 
