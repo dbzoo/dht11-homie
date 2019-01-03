@@ -1,5 +1,5 @@
 #include <DHT.h>
-#include <Homie.h>  // homie-esp8266-2.0.0
+#include <Homie.h>  // homie-esp8266-3.0.1
 
 HomieSetting<long> intervalSetting("interval", "The interval in seconds");
 const int DEFAULT_INTERVAL = 300;
@@ -10,13 +10,8 @@ unsigned long lastSent = 0;
 #define DHTTYPE DHT11 // Adjust range if you change this
 DHT dht(DHTPIN, DHTTYPE);
 
-HomieNode temperatureNode("temperature", "temperature");
-HomieNode humidityNode("humidity", "humidity");
-
-void setupHandler() {
-  temperatureNode.setProperty("unit").send("c");
-  humidityNode.setProperty("unit").send("%");
-}
+HomieNode temperatureNode("temperature", "Temperature", "temperature");
+HomieNode humidityNode("humidity", "Humidity", "humidity");
 
 void loopHandler() {
   if (millis() - lastSent >= intervalSetting.get() * 1000UL || lastSent == 0) {
@@ -41,16 +36,11 @@ void loopHandler() {
 void setup() {
   Serial.begin(115200);
   Serial << endl << endl;
-  Homie_setFirmware("homie-dht11", "1.0.0");
-  Homie.setSetupFunction(setupHandler);
+  Homie_setFirmware("homie-dht11", "1.0.0");  
   Homie.setLoopFunction(loopHandler);
-  temperatureNode.advertise("unit");
-  temperatureNode.advertise("degrees");
-  temperatureNode.advertiseRange("degrees",0,50); // dht11 range
-  humidityNode.advertise("unit");
-  humidityNode.advertise("percent");
-  humidityNode.advertiseRange("percent",20,95); // dht11 range
-  
+  temperatureNode.advertise("degrees").setName("Degrees").setDatatype("float").setUnit("°C");
+  humidityNode.advertise("percent").setName("Percent").setDatatype("float").setUnit("%");
+    
   intervalSetting.setDefaultValue(DEFAULT_INTERVAL).setValidator([] (long candidate) {
     return candidate > 0;
   });
